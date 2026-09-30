@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "phonenumber_field",
     # local
     "apps.users",
+    "apps.crafts",
 ]
 
 AUTH_USER_MODEL = "users.CustomUser"
