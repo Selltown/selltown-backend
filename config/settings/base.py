@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     # local
     "apps.users",
     "apps.locations",
+    "apps.crafts",
 ]
 
 AUTH_USER_MODEL = "users.CustomUser"
