@@ -6,6 +6,7 @@ from ..serializers.user import CreateUserSerializer
 from ..throttles import RegistrationThrottle
 from ..services.otp.arkesel import send_otp, ArkeselError
 from rest_framework import generics
+from ..services.user import create_user
 
 
 class CreateUserView(generics.CreateAPIView):
