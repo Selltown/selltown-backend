@@ -6,6 +6,11 @@ from ..serializers.user import CreateUserSerializer
 from ..throttles import RegistrationThrottle
 from ..services.otp.arkesel import send_otp, ArkeselError
 from rest_framework import generics
+from ..serializers.authentication import LoginSerializer
+from ..throttles import LoginThrottle
+from rest_framework.exceptions import AuthenticationFailed
+from ..services.user import get_user_data
+from ..services.authentication import authenticate_user
 
 
 class CreateUserView(generics.CreateAPIView):
@@ -36,3 +41,35 @@ class CreateUserView(generics.CreateAPIView):
                 },
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
+
+
+class LoginView(generics.GenericAPIView):
+    serializer_class = LoginSerializer
+    throttle_classes = [LoginThrottle]
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            access_token, refresh_token, user = authenticate_user(
+                phone_number=serializer.validated_data["phone_number"],
+                password=serializer.validated_data["password"],
+            )
+
+        except AuthenticationFailed as exc:
+            return Response(
+                {"detail": str(exc.detail)},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        user = get_user_data(user)
+
+        return Response(
+            {
+                "access": str(access_token),
+                "refresh": str(refresh_token),
+                "user": user,
+            },
+            status=status.HTTP_200_OK,
+        )

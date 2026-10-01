@@ -2,6 +2,7 @@ from rest_framework import serializers
 from ...crafts.models import Craft
 from ..models.user import CustomUser
 import logging
+from ...locations.models import Location
 
 logger = logging.getLogger(__name__)
 
@@ -60,3 +61,25 @@ class CreateUserSerializer(serializers.ModelSerializer):
                     )
 
         return attrs
+
+
+class LocationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Location
+        fields = ["name", "city"]
+
+
+class ReadArtisanSerializer(serializers.ModelSerializer):
+    location = LocationSerializer(source="artisan_profile.location", read_only=True)
+
+    class Meta:
+        model = CustomUser
+        fields = ["phone_number", "name", "location"]
+
+
+class ReadCustomerSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CustomUser
+        fields = ["phone_number", "name"]
