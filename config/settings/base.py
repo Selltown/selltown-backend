@@ -158,7 +158,7 @@ REST_FRAMEWORK = {
         "user": "1000/hour",
         "registration": "5/hour",
         # "otp": "5/hour",
-        # "login": "5/minute",
+        "login": "5/minute",
         # "logout": "3/minute",
         # "password_reset_request": "5/hour",
         # "password_reset_verify": "5/hour",

@@ -1,3 +1,4 @@
+from ..serializers.user import ReadArtisanSerializer, ReadCustomerSerializer
 from django.db import transaction
 from ...users.models.customer import CustomerProfile
 from ...users.models.user import CustomUser
@@ -6,7 +7,6 @@ from ...locations.models import Location
 import logging
 
 logger = logging.getLogger(__name__)
-
 
 @transaction.atomic
 def create_user(*, phone_number, name, password, role, craft=None, location=None):
@@ -37,3 +37,21 @@ def create_user(*, phone_number, name, password, role, craft=None, location=None
         )
 
     return user
+
+  
+  def get_user_data(user):
+    if hasattr(user, "artisan_profile"):
+        data = ReadArtisanSerializer(user).data
+        data["role"] = "artisan"
+
+        logger.info("User is an artisan.")
+
+        return data
+
+    elif hasattr(user, "customer_profile"):
+        data = ReadCustomerSerializer(user).data
+        data["role"] = "customer"
+
+        logger.info("User is a customer.")
+
+        return data
