@@ -11,6 +11,7 @@ from ..throttles import LoginThrottle
 from rest_framework.exceptions import AuthenticationFailed
 from ..services.user import get_user_data
 from ..services.authentication import authenticate_user
+from ..services.user import create_user
 
 
 class CreateUserView(generics.CreateAPIView):
