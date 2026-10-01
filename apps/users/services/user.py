@@ -8,6 +8,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 @transaction.atomic
 def create_user(*, phone_number, name, password, role, craft=None, location=None):
     user = CustomUser.objects.create_user(
@@ -38,8 +39,8 @@ def create_user(*, phone_number, name, password, role, craft=None, location=None
 
     return user
 
-  
-  def get_user_data(user):
+
+def get_user_data(user):
     if hasattr(user, "artisan_profile"):
         data = ReadArtisanSerializer(user).data
         data["role"] = "artisan"
