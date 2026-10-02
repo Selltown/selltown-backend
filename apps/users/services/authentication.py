@@ -1,6 +1,7 @@
 from django.contrib.auth import authenticate
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
 import logging
 from ...users.models import CustomUser
 
@@ -35,3 +36,15 @@ def generate_tokens_for_user(phone_number):
     user = CustomUser.objects.get(phone_number=phone_number)
     access_token, refresh_token = generate_tokens(user)
     return access_token, refresh_token, user
+
+
+def blacklist_refresh_token(refresh_token):
+    try:
+        token = RefreshToken(refresh_token)
+        token.blacklist()
+
+        logger.info("User logged out successfully.")
+
+    except TokenError:
+        logger.warning("Refresh token is invalid or is expired.")
+        raise TokenError("Invalid or expired token.")

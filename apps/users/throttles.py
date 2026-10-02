@@ -1,5 +1,5 @@
 from ..common.throttles.base import FormattedThrottleMixin
-from rest_framework.throttling import AnonRateThrottle
+from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 
 
 class RegistrationThrottle(FormattedThrottleMixin, AnonRateThrottle):
@@ -12,3 +12,7 @@ class LoginThrottle(FormattedThrottleMixin, AnonRateThrottle):
 
 class OTPThrottle(FormattedThrottleMixin, AnonRateThrottle):
     scope = "otp"
+
+
+class LogoutThrottle(FormattedThrottleMixin, UserRateThrottle):
+    scope = "logout"
