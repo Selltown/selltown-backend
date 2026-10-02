@@ -4,13 +4,13 @@ from rest_framework.exceptions import NotFound
 from rest_framework import status
 from ..serializers.user import CreateUserSerializer
 from ..throttles import RegistrationThrottle
-from ..services.otp.arkesel import send_otp, ArkeselError
+from ..services.otp.arkesel import send_otp, ArkeselError, verify_otp
 from rest_framework import generics
-from ..serializers.authentication import LoginSerializer
-from ..throttles import LoginThrottle
+from ..serializers.authentication import LoginSerializer, VerifyOtpSerializer
+from ..throttles import LoginThrottle, OTPThrottle
 from rest_framework.exceptions import AuthenticationFailed
 from ..services.user import get_user_data
-from ..services.authentication import authenticate_user
+from ..services.authentication import authenticate_user, generate_tokens_for_user
 from ..services.user import create_user
 
 
@@ -63,6 +63,50 @@ class LoginView(generics.GenericAPIView):
                 {"detail": str(exc.detail)},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
+
+        user = get_user_data(user)
+
+        return Response(
+            {
+                "access": str(access_token),
+                "refresh": str(refresh_token),
+                "user": user,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class VerifyOTPView(generics.GenericAPIView):
+    serializer_class = VerifyOtpSerializer
+    throttle_classes = [OTPThrottle]
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            verified = verify_otp(
+                phone_number=serializer.validated_data["phone_number"],
+                code=serializer.validated_data["code"],
+            )
+
+        except ArkeselError:
+            return Response(
+                {
+                    "detail": "We could not complete the verification. Please try again later."
+                },
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+        if not verified:
+            return Response(
+                {"detail": "Invalid or expired OTP."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        access_token, refresh_token, user = generate_tokens_for_user(
+            serializer.validated_data["phone_number"]
+        )
 
         user = get_user_data(user)
 
