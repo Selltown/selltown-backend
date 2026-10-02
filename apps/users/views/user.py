@@ -6,7 +6,11 @@ from ..serializers.user import CreateUserSerializer
 from ..throttles import RegistrationThrottle
 from ..services.otp.arkesel import send_otp, ArkeselError, verify_otp
 from rest_framework import generics
-from ..serializers.authentication import LoginSerializer, VerifyOtpSerializer
+from ..serializers.authentication import (
+    LoginSerializer,
+    VerifyOtpSerializer,
+    ResendOtpSerializer,
+)
 from ..throttles import LoginThrottle, OTPThrottle
 from rest_framework.exceptions import AuthenticationFailed
 from ..services.user import get_user_data
@@ -118,3 +122,30 @@ class VerifyOTPView(generics.GenericAPIView):
             },
             status=status.HTTP_200_OK,
         )
+
+
+class ResendOTPView(generics.GenericAPIView):
+    serializer_class = ResendOtpSerializer
+    throttle_classes = [OTPThrottle]
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            data = send_otp(serializer.validated_data["phone_number"])
+            return Response(
+                {
+                    "detail": "OTP sent successfully.",
+                    "ussd_code": data.get("ussd_code"),
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        except ArkeselError, NotFound:
+            return Response(
+                {
+                    "detail": "We could not send the verification code. Please try again later."
+                },
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
