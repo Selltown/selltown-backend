@@ -9,3 +9,7 @@ class LoginSerializer(serializers.Serializer):
 class VerifyOtpSerializer(serializers.Serializer):
     phone_number = serializers.CharField()
     code = serializers.CharField()
+
+
+class ResendOtpSerializer(serializers.Serializer):
+    phone_number = serializers.CharField()
