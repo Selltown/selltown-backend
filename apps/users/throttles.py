@@ -8,3 +8,7 @@ class RegistrationThrottle(FormattedThrottleMixin, AnonRateThrottle):
 
 class LoginThrottle(FormattedThrottleMixin, AnonRateThrottle):
     scope = "login"
+
+
+class OTPThrottle(FormattedThrottleMixin, AnonRateThrottle):
+    scope = "otp"

@@ -2,6 +2,7 @@ from django.contrib.auth import authenticate
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken
 import logging
+from ...users.models import CustomUser
 
 logger = logging.getLogger(__name__)
 
@@ -28,3 +29,9 @@ def generate_tokens(user):
     refresh = RefreshToken.for_user(user)
     logger.info(f"Generated tokens for user with phone number: {user.phone_number}")
     return refresh.access_token, refresh
+
+
+def generate_tokens_for_user(phone_number):
+    user = CustomUser.objects.get(phone_number=phone_number)
+    access_token, refresh_token = generate_tokens(user)
+    return access_token, refresh_token, user
