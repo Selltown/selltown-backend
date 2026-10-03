@@ -16,3 +16,7 @@ class OTPThrottle(FormattedThrottleMixin, AnonRateThrottle):
 
 class LogoutThrottle(FormattedThrottleMixin, UserRateThrottle):
     scope = "logout"
+
+
+class PasswordResetRequestThrottle(FormattedThrottleMixin, AnonRateThrottle):
+    scope = "password_reset_request"
