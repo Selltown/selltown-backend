@@ -13,3 +13,7 @@ class VerifyOtpSerializer(serializers.Serializer):
 
 class ResendOtpSerializer(serializers.Serializer):
     phone_number = serializers.CharField()
+
+
+class LogoutSerializer(serializers.Serializer):
+    refresh_token = serializers.CharField()

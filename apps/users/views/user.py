@@ -10,12 +10,19 @@ from ..serializers.authentication import (
     LoginSerializer,
     VerifyOtpSerializer,
     ResendOtpSerializer,
+    LogoutSerializer,
 )
-from ..throttles import LoginThrottle, OTPThrottle
+from ..throttles import LoginThrottle, OTPThrottle, LogoutThrottle
 from rest_framework.exceptions import AuthenticationFailed
 from ..services.user import get_user_data
-from ..services.authentication import authenticate_user, generate_tokens_for_user
+from ..services.authentication import (
+    authenticate_user,
+    generate_tokens_for_user,
+    blacklist_refresh_token,
+)
 from ..services.user import create_user
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.exceptions import TokenError
 
 
 class CreateUserView(generics.CreateAPIView):
@@ -148,4 +155,26 @@ class ResendOTPView(generics.GenericAPIView):
                     "detail": "We could not send the verification code. Please try again later."
                 },
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+
+class LogoutView(generics.GenericAPIView):
+    serializer_class = LogoutSerializer
+    throttle_classes = [LogoutThrottle]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        refresh_token = serializer.validated_data["refresh_token"]
+
+        try:
+            blacklist_refresh_token(refresh_token)
+
+            return Response({"detail": "Logout successful."}, status=status.HTTP_200_OK)
+
+        except TokenError:
+            return Response(
+                {"detail": "Invalid or expired token."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
