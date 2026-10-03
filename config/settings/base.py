@@ -162,7 +162,7 @@ REST_FRAMEWORK = {
         "logout": "3/minute",
         "password_reset_request": "5/hour",
         "password_reset_verify": "5/hour",
-        # "password_reset_confirm": "5/hour",
+        "password_reset_confirm": "5/hour",
         # "change_password": "5/hour",
     },
     "EXCEPTION_HANDLER": "apps.common.exceptions.base.custom_exception_handler",
