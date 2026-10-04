@@ -25,6 +25,7 @@ logger = logging.getLogger(__name__)
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("users/", include("apps.users.urls")),
+    path("craft/", include("apps.crafts.urls")),
 ]
 
 
