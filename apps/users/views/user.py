@@ -178,3 +178,6 @@ class LogoutView(generics.GenericAPIView):
                 {"detail": "Invalid or expired token."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+
+class ListAllUsersAPIView(generics.ListAPIView): ...
