@@ -19,6 +19,8 @@ from django.contrib import admin
 from django.urls import path, include
 import logging
 from django.http import JsonResponse
+from django.conf.urls.static import static
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +28,11 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("users/", include("apps.users.urls")),
     path("craft/", include("apps.crafts.urls")),
+    path("items/", include("apps.items.urls")),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
 def custom_404_handler(request, exception):
