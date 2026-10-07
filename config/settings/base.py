@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "apps.users",
     "apps.locations",
     "apps.crafts",
+    "apps.items",
 ]
 
 AUTH_USER_MODEL = "users.CustomUser"
@@ -129,6 +130,9 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 STORAGES = {
     "default": {
