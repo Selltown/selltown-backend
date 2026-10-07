@@ -1,3 +1,6 @@
 from django.urls import path
+from .views import ListAllStorefrontsAPIView
 
-urlpatterns = []
+urlpatterns = [
+    path("all/", ListAllStorefrontsAPIView.as_view(), name="list-all-storefronts"),
+]
