@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "apps.locations",
     "apps.crafts",
     "apps.items",
+    "apps.storefronts",
 ]
 
 AUTH_USER_MODEL = "users.CustomUser"

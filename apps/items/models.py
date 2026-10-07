@@ -1,5 +1,6 @@
 from django.db import models
 import uuid
+from ..storefronts.models import Storefront
 
 
 class Item(models.Model):
@@ -9,6 +10,9 @@ class Item(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField(blank=True, null=True)
     status = models.ForeignKey("Status", on_delete=models.PROTECT, related_name="items")
+    storefront = models.ForeignKey(
+        Storefront, on_delete=models.CASCADE, related_name="items"
+    )
 
     class Meta:
         db_table = "items"
