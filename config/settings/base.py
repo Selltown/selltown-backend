@@ -169,6 +169,7 @@ REST_FRAMEWORK = {
         "password_reset_verify": "5/hour",
         "password_reset_confirm": "5/hour",
         "change_password": "5/hour",
+        "create_storefront": "5/minute",
     },
     "EXCEPTION_HANDLER": "apps.common.exceptions.base.custom_exception_handler",
 }
