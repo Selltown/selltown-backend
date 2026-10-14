@@ -1,10 +1,14 @@
 from django.db import models
 import uuid
+from ..users.models.artisan import ArtisanProfile
 
 
 class Storefront(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=225, editable=False)
+    artisan = models.ForeignKey(
+        ArtisanProfile, on_delete=models.CASCADE, related_name="storefronts"
+    )
+    name = models.CharField(max_length=225, unique=True)
     image = models.ImageField(upload_to="storefronts/", null=True, blank=True)
 
     class Meta:
