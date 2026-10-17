@@ -4,12 +4,14 @@ from .models import Storefront
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsArtisan
 from .throttles import CreateStorefrontThrottle
+from ..common.pagination import StandardResultSetPagination
 
 
 class ListAllStorefrontsAPIView(generics.ListAPIView):
     serializer_class = ListAllStorefrontsSerializer
-    queryset = Storefront.objects.all()
+    queryset = Storefront.objects.select_related("artisan", "artisan__user")
     permission_classes = [IsAuthenticated]
+    pagination_class = StandardResultSetPagination
 
 
 class CreateStorefrontAPIView(generics.CreateAPIView):
