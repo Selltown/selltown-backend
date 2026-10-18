@@ -170,6 +170,7 @@ REST_FRAMEWORK = {
         "password_reset_confirm": "5/hour",
         "change_password": "5/hour",
         "create_storefront": "5/minute",
+        "create_item": "5/minute",
     },
     "EXCEPTION_HANDLER": "apps.common.exceptions.base.custom_exception_handler",
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
