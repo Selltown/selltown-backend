@@ -6,6 +6,8 @@ from ..permissions import IsArtisan
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status
+from django.shortcuts import get_object_or_404
+from ...storefronts.models import Storefront
 
 
 class CreateItemAPIView(generics.CreateAPIView):
@@ -26,3 +28,20 @@ class CreateItemAPIView(generics.CreateAPIView):
         ).data
 
         return Response(read_item, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class AllItemsAPIView(generics.ListAPIView):
+    serializer_class = ReadItemSerializer
+    queryset = Item.objects.select_related("storefront", "status")
+    permission_classes = [IsAuthenticated]
+
+
+class AllStorefrontItemsAPIView(generics.ListAPIView):
+    serializer_class = ReadItemSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        storefront_id = self.kwargs.get("storefront_id")
+        storefront = get_object_or_404(Storefront, pk=storefront_id)
+        storefronts = storefront.items.select_related("storefront", "status")
+        return storefronts
