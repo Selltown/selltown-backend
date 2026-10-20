@@ -22,4 +22,4 @@ class CreateStorefrontSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Storefront
-        fields = ["name", "image"]
+        fields = ["id", "name", "image"]
