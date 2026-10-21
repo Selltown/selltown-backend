@@ -11,6 +11,7 @@ class CreateItemSerializer(serializers.ModelSerializer):
 
 class ReadItemSerializer(serializers.ModelSerializer):
     item_id = serializers.UUIDField(source="id", read_only=True)
+    item_name = serializers.ReadOnlyField(source="name", read_only=True)
     storefront_id = serializers.UUIDField(
         source="storefront.id",
         read_only=True,
@@ -26,6 +27,7 @@ class ReadItemSerializer(serializers.ModelSerializer):
         model = Item
         fields = [
             "item_id",
+            "item_name",
             "storefront_id",
             "storefront_name",
             "status_id",
