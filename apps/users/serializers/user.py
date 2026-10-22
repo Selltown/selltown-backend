@@ -67,15 +67,31 @@ class LocationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Location
-        fields = ["name", "city"]
+        exclude = ["id"]
 
 
 class ReadArtisanSerializer(serializers.ModelSerializer):
     location = LocationSerializer(source="artisan_profile.location", read_only=True)
+    storefront_id = serializers.SerializerMethodField()
+    storefront_name = serializers.SerializerMethodField()
+
+    def get_storefront_id(self, obj):
+        storefront = obj.artisan_profile.storefronts.first()
+        return storefront.id if storefront else None
+
+    def get_storefront_name(self, obj):
+        storefront = obj.artisan_profile.storefronts.first()
+        return storefront.name if storefront else None
 
     class Meta:
         model = CustomUser
-        fields = ["phone_number", "name", "location"]
+        fields = [
+            "phone_number",
+            "name",
+            "location",
+            "storefront_id",
+            "storefront_name",
+        ]
 
 
 class ReadCustomerSerializer(serializers.ModelSerializer):
