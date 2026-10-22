@@ -1,4 +1,4 @@
-from rest_framework import generics
+from rest_framework import generics, serializers
 from .serializers import ListAllStorefrontsSerializer, CreateStorefrontSerializer
 from .models import Storefront
 from rest_framework.permissions import IsAuthenticated
@@ -21,4 +21,9 @@ class CreateStorefrontAPIView(generics.CreateAPIView):
     throttle_classes = [CreateStorefrontThrottle]
 
     def perform_create(self, serializer):
-        serializer.save(artisan=self.request.user.artisan_profile)
+        artisan = self.request.user.artisan_profile
+
+        if artisan.storefronts.exists():
+            serializers.ValidationError({"detail": "You already have a storefront."})
+
+        serializer.save(artisan=artisan)
