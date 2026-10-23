@@ -28,7 +28,7 @@ class ListAllStorefrontsSerializer(serializers.ModelSerializer):
         ]
 
 
-class CreateStorefrontSerializer(serializers.ModelSerializer):
+class StorefrontSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Storefront
