@@ -5,6 +5,9 @@ from rest_framework.permissions import IsAuthenticated
 from .permissions import IsArtisan
 from .throttles import CreateStorefrontThrottle
 from ..common.pagination import StandardResultSetPagination
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 
 
 class ListAllStorefrontsAPIView(generics.ListAPIView):
@@ -35,3 +38,36 @@ class RetrieveStorefrontAPIView(generics.RetrieveAPIView):
     lookup_field = "pk"
     permission_classes = [IsAuthenticated]
     throttle_classes = []
+
+
+class CheckStorefrontNameAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        name = request.query_params.get("name", "").strip()
+
+        if not name:
+            return Response(
+                {"available": False, "detail": "Storefront name is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if len(name) > 225:
+            return Response(
+                {
+                    "available": False,
+                    "detail": "Storefront name cannot exceed 255 characters.",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        name_exists = Storefront.objects.filter(name__iexact=name).exists()
+        return Response(
+            {
+                "available": not name_exists,
+                "detail": (
+                    "Name is already taken." if name_exists else "Name is available."
+                ),
+            },
+            status=status.HTTP_200_OK,
+        )
