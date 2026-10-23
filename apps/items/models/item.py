@@ -1,6 +1,6 @@
 from django.db import models
 import uuid
-from ...storefronts.models import Storefront
+from ...storefronts.models.storefront import Storefront
 from .status import Status
 
 

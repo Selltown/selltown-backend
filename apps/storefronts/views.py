@@ -1,6 +1,6 @@
 from rest_framework import generics, serializers
 from .serializers import ListAllStorefrontsSerializer, StorefrontSerializer
-from .models import Storefront
+from .models.storefront import Storefront
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsArtisan
 from .throttles import CreateStorefrontThrottle
