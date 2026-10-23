@@ -1,6 +1,6 @@
 from django.db import models
 import uuid
-from ..users.models.artisan import ArtisanProfile
+from ...users.models.artisan import ArtisanProfile
 from django.db.models.functions import Lower
 
 

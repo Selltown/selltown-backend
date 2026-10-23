@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Storefront
+from .models.storefront import Storefront
 from ..locations.models import Location
 
 
