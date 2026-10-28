@@ -1,6 +1,10 @@
 from rest_framework import generics, serializers
-from .serializers import ListAllStorefrontsSerializer, StorefrontSerializer
-from .models.storefront import Storefront
+from .serializers import (
+    ListAllStorefrontsSerializer,
+    CreateStorefrontSerializer,
+    RetrieveStorefrontSerializer,
+)
+from .models import Storefront
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsArtisan
 from .throttles import CreateStorefrontThrottle
@@ -18,7 +22,7 @@ class ListAllStorefrontsAPIView(generics.ListAPIView):
 
 
 class CreateStorefrontAPIView(generics.CreateAPIView):
-    serializer_class = StorefrontSerializer
+    serializer_class = CreateStorefrontSerializer
     queryset = Storefront.objects.all()
     permission_classes = [IsAuthenticated, IsArtisan]
     throttle_classes = [CreateStorefrontThrottle]
@@ -33,7 +37,7 @@ class CreateStorefrontAPIView(generics.CreateAPIView):
 
 
 class RetrieveStorefrontAPIView(generics.RetrieveAPIView):
-    serializer_class = StorefrontSerializer
+    serializer_class = RetrieveStorefrontSerializer
     queryset = Storefront.objects.all()
     lookup_field = "pk"
     permission_classes = [IsAuthenticated]

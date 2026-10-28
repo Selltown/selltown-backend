@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from .models.storefront import Storefront
 from ..locations.models import Location
+from django.db import transaction
+from .utils import generate_unique_slug
+from .models.storefront_slug import StorefrontSlug
 
 
 class LocationSerializer(serializers.ModelSerializer):
@@ -28,7 +31,24 @@ class ListAllStorefrontsSerializer(serializers.ModelSerializer):
         ]
 
 
-class StorefrontSerializer(serializers.ModelSerializer):
+class CreateStorefrontSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Storefront
+        fields = ["id", "name", "image"]
+
+    @transaction.atomic
+    def create(self, validated_data):
+        storefront = Storefront.objects.create(**validated_data)
+
+        StorefrontSlug.objects.create(
+            storefront=storefront, slug=generate_unique_slug(storefront.name)
+        )
+
+        return storefront
+
+
+class RetrieveStorefrontSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Storefront
