@@ -48,6 +48,29 @@ class CreateStorefrontSerializer(serializers.ModelSerializer):
         return storefront
 
 
+class UpdateStorefrontSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Storefront
+        fields = ["id", "name", "image"]
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        new_name = validated_data.get("name", instance.name)
+        name_changed = new_name != instance.name
+
+        if name_changed:
+            Storefront.objects.filter(storefront=instance, is_current=True).update(
+                is_current=False
+            )
+
+        StorefrontSlug.objects.create(
+            storefront=instance, slug=generate_unique_slug(new_name)
+        )
+
+        return super().update(instance, validated_data)
+
+
 class RetrieveStorefrontSerializer(serializers.ModelSerializer):
 
     class Meta:
