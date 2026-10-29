@@ -3,6 +3,7 @@ from .serializers import (
     ListAllStorefrontsSerializer,
     CreateStorefrontSerializer,
     RetrieveStorefrontSerializer,
+    UpdateStorefrontSerializer,
 )
 from .models import Storefront
 from rest_framework.permissions import IsAuthenticated
@@ -34,6 +35,15 @@ class CreateStorefrontAPIView(generics.CreateAPIView):
             serializers.ValidationError({"detail": "You already have a storefront."})
 
         serializer.save(artisan=artisan)
+
+
+class UpdateStorefrontAPIView(generics.UpdateAPIView):
+    serializer_class = UpdateStorefrontSerializer
+    permission_classes = [IsAuthenticated, IsArtisan]
+    throttle_classes = [CreateStorefrontThrottle]
+
+    def get_queryset(self):
+        return Storefront.objects.filter(artisan__user=self.request.user)
 
 
 class RetrieveStorefrontAPIView(generics.RetrieveAPIView):

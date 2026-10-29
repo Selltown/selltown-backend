@@ -4,6 +4,7 @@ from .views import (
     CreateStorefrontAPIView,
     RetrieveStorefrontAPIView,
     CheckStorefrontNameAPIView,
+    UpdateStorefrontAPIView,
 )
 
 urlpatterns = [
@@ -15,7 +16,12 @@ urlpatterns = [
         name="check-storefront-name",
     ),
     path(
-        "<str:pk>/",
+        "<uuid:pk>/update/",
+        UpdateStorefrontAPIView.as_view(),
+        name="update-storefront",
+    ),
+    path(
+        "<uuid:pk>/",
         RetrieveStorefrontAPIView.as_view(),
         name="retrieve-storefront",
     ),

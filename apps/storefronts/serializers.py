@@ -5,6 +5,8 @@ from django.db import transaction
 from .utils import generate_unique_slug
 from .models.storefront_slug import StorefrontSlug
 
+# todo: Add logs in all parts of the application without it
+
 
 class LocationSerializer(serializers.ModelSerializer):
 
@@ -54,21 +56,42 @@ class UpdateStorefrontSerializer(serializers.ModelSerializer):
         model = Storefront
         fields = ["id", "name", "image"]
 
+    def validate_name(self, value):
+        value = value.strip()
+
+        duplicates = Storefront.objects.filter(name__iexact=value)
+
+        if self.instance:
+            duplicates = duplicates.exclude(pk=self.instance.pk)
+
+        if duplicates.exists():
+            raise serializers.ValidationError(
+                "A storefront with this name already exists."
+            )
+
+        return value
+
     @transaction.atomic
     def update(self, instance, validated_data):
         new_name = validated_data.get("name", instance.name)
         name_changed = new_name != instance.name
 
         if name_changed:
-            Storefront.objects.filter(storefront=instance, is_current=True).update(
-                is_current=False
+            StorefrontSlug.objects.filter(
+                storefront=instance,
+                is_current=True,
+            ).update(is_current=False)
+
+        instance = super().update(instance, validated_data)
+
+        if name_changed:
+            StorefrontSlug.objects.create(
+                storefront=instance,
+                slug=generate_unique_slug(new_name),
+                is_current=True,
             )
 
-        StorefrontSlug.objects.create(
-            storefront=instance, slug=generate_unique_slug(new_name)
-        )
-
-        return super().update(instance, validated_data)
+        return instance
 
 
 class RetrieveStorefrontSerializer(serializers.ModelSerializer):
