@@ -14,6 +14,8 @@ class ArtisanProfile(models.Model):
     location = models.OneToOneField(
         Location, on_delete=models.PROTECT, related_name="artisans"
     )
+    date_added = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = "artisan_profiles"

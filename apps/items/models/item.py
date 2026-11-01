@@ -14,6 +14,8 @@ class Item(models.Model):
     storefront = models.ForeignKey(
         Storefront, on_delete=models.CASCADE, related_name="items"
     )
+    date_added = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = "items"
