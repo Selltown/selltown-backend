@@ -13,8 +13,8 @@ class StorefrontSlug(models.Model):
 
     class Meta:
         db_table = "storefront_slugs"
-        verbose_name = "storefront_slugs"
-        verbose_name_plural = "storefront_slugs"
+        verbose_name = "storefront slugs"
+        verbose_name_plural = "storefront slugs"
         constraints = [
             models.UniqueConstraint(
                 fields=["storefront"],

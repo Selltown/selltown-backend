@@ -21,6 +21,7 @@ class ListAllStorefrontsSerializer(serializers.ModelSerializer):
     storefront_image = serializers.ImageField(source="image")
     craft_name = serializers.ReadOnlyField(source="artisan.craft.craft_name")
     location = LocationSerializer(source="artisan.location")
+    current_slug = serializers.SerializerMethodField()
 
     class Meta:
         model = Storefront
@@ -30,14 +31,29 @@ class ListAllStorefrontsSerializer(serializers.ModelSerializer):
             "storefront_image",
             "craft_name",
             "location",
+            "current_slug",
         ]
+
+    def get_current_slug(self, obj):
+        current_slugs = obj.current_slug_records
+
+        if current_slugs:
+            return current_slugs[0].slug
+
+        return None
 
 
 class CreateStorefrontSerializer(serializers.ModelSerializer):
+    current_slug = serializers.SerializerMethodField()
 
     class Meta:
         model = Storefront
-        fields = ["id", "name", "image"]
+        fields = ["id", "name", "image", "current_slug"]
+
+    def get_current_slug(self, obj):
+        current_slug = obj.slug_history.filter(is_current=True).first()
+
+        return current_slug.slug if current_slug else None
 
     @transaction.atomic
     def create(self, validated_data):
@@ -51,10 +67,16 @@ class CreateStorefrontSerializer(serializers.ModelSerializer):
 
 
 class UpdateStorefrontSerializer(serializers.ModelSerializer):
+    current_slug = serializers.SerializerMethodField()
 
     class Meta:
         model = Storefront
-        fields = ["id", "name", "image"]
+        fields = ["id", "name", "image", "current_slug"]
+
+    def get_current_slug(self, obj):
+        current_slug = obj.slug_history.filter(is_current=True).first()
+
+        return current_slug.slug if current_slug else None
 
     def validate_name(self, value):
         value = value.strip()

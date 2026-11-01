@@ -8,6 +8,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from ...storefronts.models.storefront import Storefront
+from ...common.pagination import StandardResultSetPagination
+from ...storefronts.models.storefront_slug import StorefrontSlug
 
 
 class CreateItemAPIView(generics.CreateAPIView):
@@ -39,9 +41,15 @@ class AllItemsAPIView(generics.ListAPIView):
 class AllStorefrontItemsAPIView(generics.ListAPIView):
     serializer_class = ReadItemSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = StandardResultSetPagination
 
     def get_queryset(self):
-        storefront_id = self.kwargs.get("storefront_id")
-        storefront = get_object_or_404(Storefront, pk=storefront_id)
-        storefronts = storefront.items.select_related("storefront", "status")
-        return storefronts
+        slug = self.kwargs.get("slug")
+        storefront_slug = get_object_or_404(
+            StorefrontSlug.objects.select_related("storefront"), slug=slug
+        )
+        items = Item.objects.filter(
+            storefront=storefront_slug.storefront
+        ).select_related("storefront", "status")
+
+        return items

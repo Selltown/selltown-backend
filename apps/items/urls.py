@@ -5,7 +5,7 @@ from .views.status import CreateStatusAPIView, AllStatusesAPIView
 urlpatterns = [
     path("create/", CreateItemAPIView.as_view(), name="create-item"),
     path(
-        "storefront/<str:storefront_id>/",
+        "storefront/<slug:slug>/",
         AllStorefrontItemsAPIView.as_view(),
         name="all-storefront-items",
     ),

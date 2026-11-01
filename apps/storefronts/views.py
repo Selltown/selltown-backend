@@ -13,11 +13,21 @@ from ..common.pagination import StandardResultSetPagination
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from .models.storefront_slug import StorefrontSlug
+from django.db.models import Prefetch
 
 
 class ListAllStorefrontsAPIView(generics.ListAPIView):
     serializer_class = ListAllStorefrontsSerializer
-    queryset = Storefront.objects.select_related("artisan", "artisan__user")
+    queryset = Storefront.objects.select_related(
+        "artisan__craft", "artisan__location"
+    ).prefetch_related(
+        Prefetch(
+            "slug_history",
+            queryset=StorefrontSlug.objects.filter(is_current=True),
+            to_attr="current_slug_records",
+        )
+    )
     permission_classes = [IsAuthenticated]
     pagination_class = StandardResultSetPagination
 
@@ -32,7 +42,9 @@ class CreateStorefrontAPIView(generics.CreateAPIView):
         artisan = self.request.user.artisan_profile
 
         if artisan.storefronts.exists():
-            serializers.ValidationError({"detail": "You already have a storefront."})
+            raise serializers.ValidationError(
+                {"detail": "You already have a storefront."}
+            )
 
         serializer.save(artisan=artisan)
 
@@ -52,6 +64,36 @@ class RetrieveStorefrontAPIView(generics.RetrieveAPIView):
     lookup_field = "pk"
     permission_classes = [IsAuthenticated]
     throttle_classes = []
+
+
+class RetrieveStorefrontBySlugAPIView(generics.RetrieveAPIView):
+    serializer_class = RetrieveStorefrontSerializer
+    permission_classes = [IsAuthenticated]
+    throttle_classes = []
+    lookup_field = "slug"
+    lookup_url_kwarg = "slug"
+
+    def get_queryset(self):
+        return StorefrontSlug.objects.select_related("storefront").all()
+
+    def retrieve(self, request, *args, **kwargs):
+        slug_record = self.get_object()
+        storefront = slug_record.storefront
+
+        current_slug = StorefrontSlug.objects.get(
+            storefront=storefront, is_current=True
+        )
+
+        serializer = self.get_serializer(storefront)
+
+        return Response(
+            {
+                "storefront": serializer.data,
+                "current_slug": current_slug.slug,
+                "is_current_slug": slug_record.is_current,
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 class CheckStorefrontNameAPIView(APIView):
