@@ -3,6 +3,7 @@ from .views import (
     ListAllStorefrontsAPIView,
     CreateStorefrontAPIView,
     RetrieveStorefrontAPIView,
+    RetrieveStorefrontBySlugAPIView,
     CheckStorefrontNameAPIView,
     UpdateStorefrontAPIView,
 )
@@ -14,6 +15,11 @@ urlpatterns = [
         "check-name/",
         CheckStorefrontNameAPIView.as_view(),
         name="check-storefront-name",
+    ),
+    path(
+        "by-slug/<slug:slug>/",
+        RetrieveStorefrontBySlugAPIView.as_view(),
+        name="retrieve-storefront-by-slug",
     ),
     path(
         "<uuid:pk>/update/",
