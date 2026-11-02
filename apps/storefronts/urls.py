@@ -2,7 +2,6 @@ from django.urls import path
 from .views import (
     ListAllStorefrontsAPIView,
     CreateStorefrontAPIView,
-    RetrieveStorefrontAPIView,
     RetrieveStorefrontBySlugAPIView,
     CheckStorefrontNameAPIView,
     UpdateStorefrontAPIView,
@@ -25,10 +24,5 @@ urlpatterns = [
         "<uuid:pk>/update/",
         UpdateStorefrontAPIView.as_view(),
         name="update-storefront",
-    ),
-    path(
-        "<uuid:pk>/",
-        RetrieveStorefrontAPIView.as_view(),
-        name="retrieve-storefront",
     ),
 ]

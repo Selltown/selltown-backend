@@ -58,14 +58,6 @@ class UpdateStorefrontAPIView(generics.UpdateAPIView):
         return Storefront.objects.filter(artisan__user=self.request.user)
 
 
-class RetrieveStorefrontAPIView(generics.RetrieveAPIView):
-    serializer_class = RetrieveStorefrontSerializer
-    queryset = Storefront.objects.all()
-    lookup_field = "pk"
-    permission_classes = [IsAuthenticated]
-    throttle_classes = []
-
-
 class RetrieveStorefrontBySlugAPIView(generics.RetrieveAPIView):
     serializer_class = RetrieveStorefrontSerializer
     permission_classes = [IsAuthenticated]
