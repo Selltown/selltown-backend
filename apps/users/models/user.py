@@ -42,6 +42,8 @@ class CustomUser(AbstractUser):
     phone_number = PhoneNumberField(unique=True, region="GH")
     name = models.CharField(max_length=125)
     is_phone_verified = models.BooleanField(default=False)
+    date_added = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
 
     username = None
 

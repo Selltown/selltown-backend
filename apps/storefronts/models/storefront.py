@@ -11,11 +11,14 @@ class Storefront(models.Model):
     )
     name = models.CharField(max_length=225)
     image = models.ImageField(upload_to="storefronts/", null=True, blank=True)
+    date_added = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = "storefronts"
         verbose_name = "storefront"
         verbose_name_plural = "storefronts"
+        ordering = ["-date_added"]
 
         constraints = [
             models.UniqueConstraint(
