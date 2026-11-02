@@ -7,7 +7,6 @@ from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-from ...storefronts.models.storefront import Storefront
 from ...common.pagination import StandardResultSetPagination
 from ...storefronts.models.storefront_slug import StorefrontSlug
 
@@ -30,12 +29,6 @@ class CreateItemAPIView(generics.CreateAPIView):
         ).data
 
         return Response(read_item, status=status.HTTP_201_CREATED, headers=headers)
-
-
-class AllItemsAPIView(generics.ListAPIView):
-    serializer_class = ReadItemSerializer
-    queryset = Item.objects.select_related("storefront", "status")
-    permission_classes = [IsAuthenticated]
 
 
 class AllStorefrontItemsAPIView(generics.ListAPIView):
