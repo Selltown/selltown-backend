@@ -117,7 +117,8 @@ class UpdateStorefrontSerializer(serializers.ModelSerializer):
 
 
 class RetrieveStorefrontSerializer(serializers.ModelSerializer):
+    location = LocationSerializer(source="artisan.location", read_only=True)
 
     class Meta:
         model = Storefront
-        fields = ["id", "name", "image"]
+        fields = ["id", "name", "image", "location"]
