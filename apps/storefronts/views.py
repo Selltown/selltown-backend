@@ -66,7 +66,9 @@ class RetrieveStorefrontBySlugAPIView(generics.RetrieveAPIView):
     lookup_url_kwarg = "slug"
 
     def get_queryset(self):
-        return StorefrontSlug.objects.select_related("storefront").all()
+        return StorefrontSlug.objects.select_related(
+            "storefront", "storefront__artisan", "storefront__artisan__location"
+        )
 
     def retrieve(self, request, *args, **kwargs):
         slug_record = self.get_object()
