@@ -74,6 +74,7 @@ class ReadArtisanSerializer(serializers.ModelSerializer):
     location = LocationSerializer(source="artisan_profile.location", read_only=True)
     storefront_id = serializers.SerializerMethodField()
     storefront_name = serializers.SerializerMethodField()
+    current_slug = serializers.SerializerMethodField()
 
     def get_storefront_id(self, obj):
         storefront = obj.artisan_profile.storefronts.first()
@@ -83,6 +84,16 @@ class ReadArtisanSerializer(serializers.ModelSerializer):
         storefront = obj.artisan_profile.storefronts.first()
         return storefront.name if storefront else None
 
+    def get_current_slug(self, obj):
+        storefront = obj.artisan_profile.storefronts.first()
+
+        if not storefront:
+            return None
+
+        current_slug = storefront.slug_history.filter(is_current=True).first()
+
+        return current_slug.slug if current_slug else None
+
     class Meta:
         model = CustomUser
         fields = [
@@ -91,6 +102,7 @@ class ReadArtisanSerializer(serializers.ModelSerializer):
             "location",
             "storefront_id",
             "storefront_name",
+            "current_slug",
         ]
 
 
