@@ -21,6 +21,7 @@ class Item(models.Model):
         db_table = "items"
         verbose_name = "item"
         verbose_name_plural = "items"
+        ordering = ["-date_added"]
 
     def __str__(self):
         return self.name
