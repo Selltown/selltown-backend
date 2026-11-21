@@ -18,14 +18,30 @@ def create_user(*, phone_number, name, password, role, craft=None, location=None
     )
 
     if role == "artisan":
-        location = Location.objects.create(**location)
-        logger.info(f"Location ({location.city}) ({location.full_address}) created")
+        location_data = location
+
+        location_obj, created = Location.objects.get_or_create(
+            place_id=location_data["place_id"],
+            defaults=location_data,
+        )
+
+        if created:
+            logger.info(
+                f"Location ({location_obj.city}) "
+                f"({location_obj.full_address}) created"
+            )
+        else:
+            logger.info(
+                f"Existing location reused: "
+                f"({location_obj.city}) ({location_obj.full_address})"
+            )
 
         ArtisanProfile.objects.create(
             user=user,
             craft=craft,
-            location=location,
+            location=location_obj,
         )
+
         logger.info(
             f"Artisan profile has been created for user with phone number: {phone_number}"
         )

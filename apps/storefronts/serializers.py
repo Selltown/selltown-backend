@@ -6,6 +6,7 @@ from .utils import generate_unique_slug
 from .models.storefront_slug import StorefrontSlug
 
 # todo: Add logs in all parts of the application without it
+# todo: We have to trigger a phone number verification and a possible duplication check when the user changes his phone number
 
 
 class LocationSerializer(serializers.ModelSerializer):

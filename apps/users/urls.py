@@ -5,6 +5,7 @@ from .views.user import (
     VerifyOTPView,
     ResendOTPView,
     LogoutView,
+    UpdateUserAPIView,
 )
 from .views.password_reset import (
     PasswordResetRequestAPIView,
@@ -19,6 +20,7 @@ urlpatterns = [
     path("verify-otp/", VerifyOTPView.as_view(), name="verify-otp"),
     path("resend-otp/", ResendOTPView.as_view(), name="resend-otp"),
     path("logout/", LogoutView.as_view(), name="logout"),
+    path("update/", UpdateUserAPIView.as_view(), name="update-user"),
     path(
         "password-reset/request/",
         PasswordResetRequestAPIView.as_view(),

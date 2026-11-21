@@ -3,6 +3,9 @@ from ...crafts.models import Craft
 from ..models.user import CustomUser
 import logging
 from ...locations.models import Location
+from ..models.artisan import ArtisanProfile
+from ...locations.serializers import LocationSerializer
+from django.db import transaction
 
 logger = logging.getLogger(__name__)
 
@@ -63,14 +66,62 @@ class CreateUserSerializer(serializers.ModelSerializer):
         return attrs
 
 
-class LocationSerializer(serializers.ModelSerializer):
+class UpdateUserSerializer(serializers.ModelSerializer):
+    craft = serializers.PrimaryKeyRelatedField(
+        queryset=Craft.objects.all(), required=False
+    )
+    location = LocationSerializer(required=False)
 
     class Meta:
-        model = Location
-        exclude = ["id"]
+        model = CustomUser
+        fields = ["phone_number", "name", "craft", "location"]
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        phone_number_changed = (
+            "phone_number" in validated_data
+            and validated_data["phone_number"] != instance.phone_number
+        )
+
+        if phone_number_changed:
+            validated_data["is_phone_verified"] = False
+
+        artisan_data = {
+            field: validated_data.pop(field)
+            for field in ["craft", "location"]
+            if field in validated_data
+        }
+
+        instance = super().update(instance, validated_data)
+
+        if artisan_data:
+            if not hasattr(instance, "artisan_profile"):
+                raise serializers.ValidationError(
+                    "Only artisans can update craft and location."
+                )
+
+            location_data = artisan_data.pop("location", None)
+            artisan_profile = instance.artisan_profile
+
+            for field, value in artisan_data.items():
+                setattr(artisan_profile, field, value)
+
+            if artisan_data:
+                artisan_profile.save()
+
+            if location_data is not None:
+                location, created = Location.objects.get_or_create(
+                    place_id=location_data["place_id"], defaults=location_data
+                )
+
+                artisan_profile.location = location
+                artisan_profile.save(update_fields=["location"])
+
+        return instance
 
 
 class ReadArtisanSerializer(serializers.ModelSerializer):
+    user_id = serializers.ReadOnlyField(source="artisan_profile.user.id")
     location = LocationSerializer(source="artisan_profile.location", read_only=True)
     storefront_id = serializers.SerializerMethodField()
     storefront_name = serializers.SerializerMethodField()
@@ -97,7 +148,9 @@ class ReadArtisanSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = [
+            "user_id",
             "phone_number",
+            "is_phone_verified",
             "name",
             "location",
             "storefront_id",
@@ -107,7 +160,8 @@ class ReadArtisanSerializer(serializers.ModelSerializer):
 
 
 class ReadCustomerSerializer(serializers.ModelSerializer):
+    user_id = serializers.ReadOnlyField(source="customer_profile.user.id")
 
     class Meta:
         model = CustomUser
-        fields = ["phone_number", "name"]
+        fields = ["user_id", "phone_number", "name", "is_phone_verified"]
