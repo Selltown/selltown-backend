@@ -2,7 +2,7 @@ from ..models.user import CustomUser
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 from rest_framework import status
-from ..serializers.user import CreateUserSerializer
+from ..serializers.user import CreateUserSerializer, UpdateUserSerializer
 from ..throttles import RegistrationThrottle
 from ..services.otp.arkesel import send_otp, ArkeselError, verify_otp
 from rest_framework import generics
@@ -12,7 +12,8 @@ from ..serializers.authentication import (
     ResendOtpSerializer,
     LogoutSerializer,
 )
-from ..throttles import LoginThrottle, OTPThrottle, LogoutThrottle
+from ..serializers.user import ReadArtisanSerializer, ReadCustomerSerializer
+from ..throttles import LoginThrottle, OTPThrottle, LogoutThrottle, UpdateUserThrottle
 from rest_framework.exceptions import AuthenticationFailed
 from ..services.user import get_user_data
 from ..services.authentication import (
@@ -28,7 +29,9 @@ from rest_framework_simplejwt.exceptions import TokenError
 class CreateUserView(generics.CreateAPIView):
     serializer_class = CreateUserSerializer
     throttle_classes = [RegistrationThrottle]
-    queryset = CustomUser.objects.all()
+    queryset = CustomUser.objects.select_related(
+        "artisan_profile__location"
+    ).prefetch_related("artisan_profile__storefronts")
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -53,6 +56,37 @@ class CreateUserView(generics.CreateAPIView):
                 },
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
+
+
+class UpdateUserAPIView(generics.UpdateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = UpdateUserSerializer
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [UpdateUserThrottle]
+
+    def get_object(self):
+        return self.request.user
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+
+        if hasattr(user, "artisan_profile"):
+            data = ReadArtisanSerializer(user).data
+
+        elif hasattr(user, "customer_profile"):
+            data = ReadCustomerSerializer(user).data
+
+        else:
+            raise serializers.ValidationError(
+                "User does not have an associated profile."
+            )
+
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class LoginView(generics.GenericAPIView):
