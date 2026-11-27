@@ -70,11 +70,12 @@ class UpdateUserSerializer(serializers.ModelSerializer):
     craft = serializers.PrimaryKeyRelatedField(
         queryset=Craft.objects.all(), required=False
     )
+    craft_description = serializers.CharField(required=False)
     location = LocationSerializer(required=False)
 
     class Meta:
         model = CustomUser
-        fields = ["phone_number", "name", "craft", "location"]
+        fields = ["phone_number", "name", "craft", "craft_description", "location"]
 
     @transaction.atomic
     def update(self, instance, validated_data):
@@ -88,7 +89,7 @@ class UpdateUserSerializer(serializers.ModelSerializer):
 
         artisan_data = {
             field: validated_data.pop(field)
-            for field in ["craft", "location"]
+            for field in ["craft", "craft_description", "location"]
             if field in validated_data
         }
 
@@ -122,6 +123,10 @@ class UpdateUserSerializer(serializers.ModelSerializer):
 
 class ReadArtisanSerializer(serializers.ModelSerializer):
     user_id = serializers.ReadOnlyField(source="artisan_profile.user.id")
+    craft = serializers.ReadOnlyField(source="artisan_profile.craft.craft_name")
+    craft_description = serializers.ReadOnlyField(
+        source="artisan_profile.craft_description"
+    )
     location = LocationSerializer(source="artisan_profile.location", read_only=True)
     storefront_id = serializers.SerializerMethodField()
     storefront_name = serializers.SerializerMethodField()
@@ -152,6 +157,8 @@ class ReadArtisanSerializer(serializers.ModelSerializer):
             "phone_number",
             "is_phone_verified",
             "name",
+            "craft",
+            "craft_description",
             "location",
             "storefront_id",
             "storefront_name",
