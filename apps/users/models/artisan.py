@@ -11,6 +11,7 @@ class ArtisanProfile(models.Model):
         CustomUser, on_delete=models.CASCADE, related_name="artisan_profile"
     )
     craft = models.ForeignKey(Craft, on_delete=models.PROTECT, related_name="artisans")
+    craft_description = models.TextField(null=True, blank=True)
     location = models.ForeignKey(
         Location, on_delete=models.PROTECT, related_name="artisans"
     )
